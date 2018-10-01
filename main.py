@@ -85,3 +85,8 @@ def Function:
             kw['closure'] = tuple(make_cell(0) for _ in closure)
         self._func = types.FunctionType(code, globs, **kw)
 
+    def __call__(self, *args, **kwargs):
+        callargs = inspect.getcallargs(self._func, *args, **kwargs)
+        frame = self._vm.make_frame(self.func_code, callargs, self.func_globals, {})
+        return self._vm.run_frame(frame)
+
