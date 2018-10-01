@@ -82,11 +82,15 @@ def Function:
 
         kw = {'argdefs': self.func_defaults}
         if closure:
-            kw['closure'] = tuple(make_cell(0) for _ in closure)
+            kw['closure'] = tuple(self.make_cell(0) for _ in closure)
         self._func = types.FunctionType(code, globs, **kw)
 
     def __call__(self, *args, **kwargs):
         callargs = inspect.getcallargs(self._func, *args, **kwargs)
         frame = self._vm.make_frame(self.func_code, callargs, self.func_globals, {})
         return self._vm.run_frame(frame)
+
+    def make_cell(value):
+        fn = (lambda x: lambda: x)(value)
+        return fn.__closure__[0]
 
