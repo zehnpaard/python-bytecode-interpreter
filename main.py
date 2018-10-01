@@ -62,3 +62,10 @@ class Frame:
         self.last_instruction = 0
         self.block_stack = []
         
+
+def Function:
+    __slots__ = ['func_code', 'func_name', 'func_defaults', 'func_globals',
+            'func_locals', 'func_dict', 'func_closure', 
+            '__name__', '__dict__', '__doc__',
+            '_vm', '_func',]
+
