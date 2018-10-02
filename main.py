@@ -42,9 +42,6 @@ class VirtualMachine:
         else:
             self.frame = None
 
-    def run_frame(self):
-        pass
-
     def top(self):
         return self.frame.stack[-1]
 
