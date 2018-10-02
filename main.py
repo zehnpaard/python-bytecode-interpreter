@@ -87,6 +87,25 @@ class VirtualMachine:
             argument = []
         return byte_name, argument
 
+    def dispatch(self, byte_name, argument):
+        why = None
+        try:
+            bytecode_fn = getattr(self, 'byte_%s' % byte_name, None)
+            if bytecode_fn is None:
+                if byte_name.startswith('UNARY_'):
+                    self.unaryOperator(byte_name[6:])
+                elif byte_name.startswith('BINARY_'):
+                    self.binaryOperator(byte_name[7:])
+                else:
+                    error_message = "unsupported bytecode type: %s" % byte_name
+                    raise VirtualMachineError(error_message)
+            else:
+                why = bytecode_fn(*argument)
+        except:
+            self.last_exception = sys.exc_info()[:2] + (None,)
+            why = 'exception'
+        return why
+
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
