@@ -62,6 +62,32 @@ class VirtualMachine:
         else:
             return []
 
+    def parse_byte_and_args(self):
+        f = self.frame
+        opoffset = f.last_instruction
+        byteCode = f.code_obj.co_code[opoffset]
+        f.last_instruction += 1
+        byte_name = dis.opname[byteCode]
+        if byteCode >= dis.HAVE_ARGUMENT:
+            arg = f.code_obj.co_code[f.last_instruction:f.last_instruction+2]
+            f.last_instruction += 2
+            arg_val = arg[0] + (arg[1] * 256)
+            if byteCode in dis.hasconst:
+                arg = f.code_obj.co_consts[arg_val]
+            elif byteCode in dis.hasname:
+                arg = f.code_obj.co_names[arg_val]
+            elif byteCode in dis.haslocal:
+                arg = f.code_obj.co_varnames[arg_val]
+            elif byteCode in dis.hasjrel:
+                arg = f.last_instruction + arg_val
+            else:
+                arg = arg_val
+            argument = [arg]
+        else:
+            argument = []
+        return byte_name, argument
+
+
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
         self.code_obj = code_obj
