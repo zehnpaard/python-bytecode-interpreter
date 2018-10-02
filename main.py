@@ -106,6 +106,25 @@ class VirtualMachine:
             why = 'exception'
         return why
 
+    def run_frame(self, frame):
+        self.push_frame(frame)
+        while True:
+            byte_name, arguments = self.parse_byte_and_args()
+            why = self.dispatch(byte_name, arguments)
+
+            while why and frame.block_stack:
+                why = self.manage_block_stack(why)
+            if why:
+                break
+        self.pop_frame()
+        if why == 'exception':
+            exc, val, tb = self.last_exception
+            e = exc(val)
+            e.__traceback__ = tb
+            raise e
+
+        return self.return_value
+
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
