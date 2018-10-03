@@ -144,6 +144,41 @@ class VirtualMachine:
             traceback, value, exctype = self.popn(3)
             self.last_exception = exctype, value, traceback
 
+    def manage_block_stack(self, why):
+        frame = self.frame
+        block = frame.block_stack[-1]
+        if block.type == 'loop' and why == 'continue':
+            self.jump(self.return_value)
+            why = None
+            return why
+
+        self.pop_block()
+        self.unwind_block(block)
+
+        if block.type == 'loop' and why == 'break':
+            why = None
+            self.jump(block.handler)
+            return why
+
+        if (block.type in ['setup-except', 'finally'] and why == 'exception'):
+            self.push_block('except-handler')
+            exctype, value, tb = self.last_exception
+            self.push(tb, value, exctype)
+            self.push(tb, value, exctype)
+            why = None
+            self.jump(block.handler)
+            return why
+        elif block.type == 'finally':
+            if why in ('return', 'continue'):
+                self.push(self.return_value)
+
+            self.push(why)
+
+            why = None
+            self.jump(block.handler)
+            return why
+        return why
+
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
