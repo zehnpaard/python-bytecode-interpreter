@@ -131,6 +131,19 @@ class VirtualMachine:
     def pop_block(self):
         return self.frame.block_stack.pop()
 
+    def unwind_block(self, block):
+        if block.type = 'except-handler':
+            offset = 3
+        else:
+            offset = 0
+
+        while len(self.frame.stack) > block.level + offset:
+            self.pop()
+
+        if block.type == 'except-handler':
+            traceback, value, exctype = self.popn(3)
+            self.last_exception = exctype, value, traceback
+
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
