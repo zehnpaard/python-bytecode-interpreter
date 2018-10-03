@@ -124,6 +124,13 @@ class VirtualMachine:
 
         return self.return_value
 
+    def push_block(self, b_type, handler=None):
+        stack_height = len(self.frame.stack)
+        self.frame.block_stack.append(Block(b_type, handler, stack_height))
+
+    def pop_block(self):
+        return self.frame.block_stack.pop()
+
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
