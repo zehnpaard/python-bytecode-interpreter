@@ -1,6 +1,8 @@
 class VirtualMachineError(Exception):
     pass
 
+Block = collections.namedtuple('Block', "type, handler, stack_height")
+
 class VirtualMachine:
     def __init__(self):
         self.frames = []
