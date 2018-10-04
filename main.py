@@ -200,6 +200,17 @@ class VirtualMachine:
     def byte_STORE_NAME(self, name):
         self.frame.f_local[name] = self.pop()
 
+    def byte_LOAD_FAST(self, name):
+        if name in self.f_locals:
+            val = self.frame.f_locals[name]
+        else:
+            raise UnboundLocalError(
+                    "local variable '%s' referenced before assignment" % name
+                    )
+        self.push(val)
+
+    def byte_STORE_FAST(self, name):
+        self.frame.f_locals[name] = self.pop()
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
