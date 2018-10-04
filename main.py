@@ -179,6 +179,12 @@ class VirtualMachine:
             return why
         return why
 
+    def byte_LOAD_CONST(self, const):
+        self.push(const)
+
+    def byte_POP_TOP(self):
+        self.pop()
+
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
