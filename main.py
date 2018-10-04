@@ -212,6 +212,16 @@ class VirtualMachine:
     def byte_STORE_FAST(self, name):
         self.frame.f_locals[name] = self.pop()
 
+    def byte_LOAD_GLOBAL(self, name):
+        f = self.frame
+        if name in f.f_globals:
+            val = f.f_globals[name]
+        elif name in f.f_builtins:
+            val = f.f_builtins[name]
+        else:
+            raise NameError("global name '%s' is not defined" % name)
+        self.push(val)
+
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
         self.code_obj = code_obj
