@@ -185,6 +185,21 @@ class VirtualMachine:
     def byte_POP_TOP(self):
         self.pop()
 
+    def byte_LOAD_NAME(self, name):
+        frame = self.frame
+        if name in frame.f_locals:
+            val = frame.f_locals[name]
+        elif name in frame.f_globals:
+            val = frame.f_globals[name]
+        elif name in frame.f_builtins:
+            val = frame.f_builtins[name]
+        else:
+            raise NameError("name '%s' is not defined" % name)
+        self.push(val)
+
+    def byte_STORE_NAME(self, name):
+        self.frame.f_local[name] = self.pop()
+
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
