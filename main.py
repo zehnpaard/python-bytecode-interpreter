@@ -222,6 +222,71 @@ class VirtualMachine:
             raise NameError("global name '%s' is not defined" % name)
         self.push(val)
 
+    BINARY_OPERATORS = {
+            'POWER': pow,
+            'MULTIPLY': operator.mul,
+            'FLOOR_DIVIDE': operator.floordiv,
+            'TRUE_DIVIDE': operator.truediv,
+            'MODULO': operator.mod,
+            'ADD': operator.add,
+            'SUBTRACT': operator.sub,
+            'SUBSCR': operator.getitem,
+            'LSHIFT': operator.lshift,
+            'RSHIFT': operator.rshift,
+            'AND': operator.and_,
+            'XOR': operator.xor,
+            'OR': operator.or_,
+            }
+
+    def binaryOperator(self, op):
+        x, y = self.popn(2)
+        self.push(self.BINARY_OPERATORS[op](x, y))
+
+    COMPARE_OPERATORS = [
+            operator.lt,
+            operator.le,
+            operator.eq,
+            operator.ne,
+            operator.gt,
+            operator.ge,
+            lambda x, y: x in y,
+            lambda x, y: x not in y,
+            lambda x, y: x is y,
+            lambda x, y: x is not y,
+            lambda x, y: issubclass(x, Exception) and issubclass(x, y),
+            ]
+
+    def byte_COMPARE_OP(self, opnum):
+        x, y = self.popn(2)
+        self.push(self.COMPARE_OPERATORS[opnum](x, y))
+
+    def byte_LOAD_ATTR(self, attr):
+        obj = self.pop()
+        val = getattr(obj, attr)
+        self.push(val)
+
+    def byte_STORE_ATTR(self, name):
+        val, obj = self.popn(2)
+        setattr(obj, name, val)
+
+    def byte_BUILD_LIST(self, count):
+        elts = self.popn(count)
+        self.push(elts)
+
+    def byte_LIST_APPEND(self, count):
+        val = self.pop()
+        the_list = self.frame.stack[-count]
+        the_list.append(val)
+
+    def byte_BUILD_MAP(self, size):
+        self.push({})
+
+    def byte_STORE_MAP(self):
+        the_map, val, key = self.popn(3)
+        the_map[key] = val
+        self.push(the_map)
+
+
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
         self.code_obj = code_obj
