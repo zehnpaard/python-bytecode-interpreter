@@ -222,6 +222,26 @@ class VirtualMachine:
             raise NameError("global name '%s' is not defined" % name)
         self.push(val)
 
+    BINARY_OPERATORS = {
+            'POWER': pow,
+            'MULTIPLY': operator.mul,
+            'FLOOR_DIVIDE': operator.floordiv,
+            'TRUE_DIVIDE': operator.truediv,
+            'MODULO': operator.mod,
+            'ADD': operator.add,
+            'SUBTRACT': operator.sub,
+            'SUBSCR': operator.getitem,
+            'LSHIFT': operator.lshift,
+            'RSHIFT': operator.rshift,
+            'AND': operator.and_,
+            'XOR': operator.xor,
+            'OR': operator.or_,
+            }
+
+    def binaryOperator(self, op):
+        x, y = self.popn(2)
+        self.push(self.BINARY_OPERATORS[op](x, y))
+
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
         self.code_obj = code_obj
