@@ -259,7 +259,17 @@ class VirtualMachine:
     def byte_COMPARE_OP(self, opnum):
         x, y = self.popn(2)
         self.push(self.COMPARE_OPERATORS[opnum](x, y))
-            ]
+
+    def byte_LOAD_ATTR(self, attr):
+        obj = self.pop()
+        val = getattr(obj, attr)
+        self.push(val)
+
+    def byte_STORE_ATTR(self, name):
+        val, obj = self.popn(2)
+        setattr(obj, name, val)
+
+
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
