@@ -278,6 +278,14 @@ class VirtualMachine:
         the_list = self.frame.stack[-count]
         the_list.append(val)
 
+    def byte_BUILD_MAP(self, size):
+        self.push({})
+
+    def byte_STORE_MAP(self):
+        the_map, val, key = self.popn(3)
+        the_map[key] = val
+        self.push(the_map)
+
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
