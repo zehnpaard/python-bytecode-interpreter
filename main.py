@@ -269,6 +269,14 @@ class VirtualMachine:
         val, obj = self.popn(2)
         setattr(obj, name, val)
 
+    def byte_BUILD_LIST(self, count):
+        elts = self.popn(count)
+        self.push(elts)
+
+    def byte_LIST_APPEND(self, count):
+        val = self.pop()
+        the_list = self.frame.stack[-count]
+        the_list.append(val)
 
 
 class Frame:
