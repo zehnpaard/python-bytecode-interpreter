@@ -286,6 +286,21 @@ class VirtualMachine:
         the_map[key] = val
         self.push(the_map)
 
+    def byte_JUMP_FORWARD(self, jump):
+        self.jump(jump)
+
+    def byte_JUMP_ABSOLUTE(self, jump):
+        self.jump(jump)
+
+    def byte_POP_JUMP_IF_TRUE(self, jump):
+        val = self.pop()
+        if val:
+            self.jump(jump)
+
+    def byte_POP_JUMP_IF_FALSE(self, jump):
+        val = self.pop()
+        if not val:
+            self.jump(jump)
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
