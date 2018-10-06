@@ -302,6 +302,27 @@ class VirtualMachine:
         if not val:
             self.jump(jump)
 
+    def byte_SETUP_LOOP(self, dest):
+        self.push_block('loop', dest)
+
+    def byte_GET_ITER(self):
+        self.push(iter(self.pop()))
+
+    def byte_FOR_ITER(self, jump):
+        iterobj = self.top()
+        try:
+            v = next(iterobj)
+            self.push(v)
+        except StopIteration:
+            self.pop()
+            self.jump(jump)
+
+    def byte_BREAK_LOOP(self):
+        return 'break'
+
+    def byte_POP_BLOCK(self):
+        self.pop_block()
+
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
         self.code_obj = code_obj
