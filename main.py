@@ -1,3 +1,6 @@
+import collections
+import operator
+
 class VirtualMachineError(Exception):
     pass
 
@@ -132,7 +135,7 @@ class VirtualMachine:
         return self.frame.block_stack.pop()
 
     def unwind_block(self, block):
-        if block.type = 'except-handler':
+        if block.type == 'except-handler':
             offset = 3
         else:
             offset = 0
@@ -362,7 +365,7 @@ class Frame:
         self.block_stack = []
         
 
-def Function:
+class Function:
     __slots__ = ['func_code', 'func_name', 'func_defaults', 'func_globals',
             'func_locals', 'func_dict', 'func_closure', 
             '__name__', '__dict__', '__doc__',
