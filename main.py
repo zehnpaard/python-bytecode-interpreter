@@ -1,3 +1,6 @@
+import collections
+import operator
+
 class VirtualMachineError(Exception):
     pass
 
@@ -132,7 +135,7 @@ class VirtualMachine:
         return self.frame.block_stack.pop()
 
     def unwind_block(self, block):
-        if block.type = 'except-handler':
+        if block.type == 'except-handler':
             offset = 3
         else:
             offset = 0
@@ -286,6 +289,63 @@ class VirtualMachine:
         the_map[key] = val
         self.push(the_map)
 
+    def byte_JUMP_FORWARD(self, jump):
+        self.jump(jump)
+
+    def byte_JUMP_ABSOLUTE(self, jump):
+        self.jump(jump)
+
+    def byte_POP_JUMP_IF_TRUE(self, jump):
+        val = self.pop()
+        if val:
+            self.jump(jump)
+
+    def byte_POP_JUMP_IF_FALSE(self, jump):
+        val = self.pop()
+        if not val:
+            self.jump(jump)
+
+    def byte_SETUP_LOOP(self, dest):
+        self.push_block('loop', dest)
+
+    def byte_GET_ITER(self):
+        self.push(iter(self.pop()))
+
+    def byte_FOR_ITER(self, jump):
+        iterobj = self.top()
+        try:
+            v = next(iterobj)
+            self.push(v)
+        except StopIteration:
+            self.pop()
+            self.jump(jump)
+
+    def byte_BREAK_LOOP(self):
+        return 'break'
+
+    def byte_POP_BLOCK(self):
+        self.pop_block()
+
+    def byte_MAKE_FUNCTION(self, argc):
+        name = self.pop()
+        code = self.pop()
+        defaults = self.popn(argc)
+        globs = self.frame.f_globals
+        fn = Function(name, code, globs, defaults, None, self)
+        self.push(fn)
+
+    def byte_CALL_FUNCTION(self, arg):
+        lenKw, lenPos = divmod(arg, 256)
+        posargs = self.popn(lenPos)
+
+        func = self.pop()
+        frame = self.frame
+        retval = func(*posargs)
+        self.push(retval)
+
+    def byte_RETURN_VALUE(self):
+        self.return_value = self.pop()
+        return "return"
 
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
@@ -305,7 +365,7 @@ class Frame:
         self.block_stack = []
         
 
-def Function:
+class Function:
     __slots__ = ['func_code', 'func_name', 'func_defaults', 'func_globals',
             'func_locals', 'func_dict', 'func_closure', 
             '__name__', '__dict__', '__doc__',
