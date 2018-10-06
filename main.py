@@ -323,6 +323,27 @@ class VirtualMachine:
     def byte_POP_BLOCK(self):
         self.pop_block()
 
+    def byte_MAKE_FUNCTION(self, argc):
+        name = self.pop()
+        code = self.pop()
+        defaults = self.popn(argc)
+        globs = self.frame.f_globals
+        fn = Function(name, code, globs, defaults, None, self)
+        self.push(fn)
+
+    def byte_CALL_FUNCTION(self, arg):
+        lenKw, lenPos = divmod(arg, 256)
+        posargs = self.popn(lenPos)
+
+        func = self.pop()
+        frame = self.frame
+        retval = func(*posargs)
+        self.push(retval)
+
+    def byte_RETURN_VALUE(self):
+        self.return_value = self.pop()
+        return "return"
+
 class Frame:
     def __init__(self, code_obj, global_names, local_names, prev_frame):
         self.code_obj = code_obj
